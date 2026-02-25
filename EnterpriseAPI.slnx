@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EnterpriseAPI.Api/EnterpriseAPI.Api.csproj" />
+    <Project Path="src/EnterpriseAPI.Application/EnterpriseAPI.Application.csproj" />
+    <Project Path="src/EnterpriseAPI.Domain/EnterpriseAPI.Domain.csproj" />
+    <Project Path="src/EnterpriseAPI.Infrastructure/EnterpriseAPI.Infrastructure.csproj" />
+    <Project Path="src/EnterpriseAPI.Shared/EnterpriseAPI.Shared.csproj" />
+  </Folder>
+</Solution>

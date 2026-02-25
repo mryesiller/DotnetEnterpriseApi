@@ -1,0 +1,102 @@
+## .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+## Visual Studio
+.vs/
+.vscode/
+*.csproj.user
+*.csproj.userprefs
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+*.nupkg.metadata
+*.cache
+*.nupkg.sha512
+
+## Project specific
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+
+## Logs
+*.log
+logs/
+
+## User Secrets
+/secrets.json
+/appsettings.*.json
+!appsettings.json
+!appsettings.Development.json.example
+
+## EF Core / Migrations
+/Migrations/*.Designer.cs
+/Migrations/*.cs
+!Migrations/ApplicationDbContextModelSnapshot.cs
+
+## Test Results
+TestResults/
+*.trx
+*.coverage
+
+## VS Code
+.vscode/
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+
+## Docker
+docker-compose.override.yml
+*.db
+*.db-wal
+
+## Temporary files
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+## Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+## Publish
+publish/
+*.publish.xml
+
+## Node (eğer frontend varsa)
+node_modules/
+npm-debug.log
+yarn-error.log
