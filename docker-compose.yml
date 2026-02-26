@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: enterprise_postgres
+    environment:
+      POSTGRES_DB: EnterpriseAPIDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "12345"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - enterprise_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+    container_name: enterprise_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=EnterpriseAPIDB;Username=postgres;Password=12345
+    ports:
+      - "5000:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - enterprise_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    name: enterprise_postgres_data
+
+networks:
+  enterprise_network:
+    driver: bridge
