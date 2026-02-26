@@ -1,13 +1,15 @@
-using EnterpriseAPI.Domain.Common;
+// src/EnterpriseAPI.Infrastructure/Data/ApplicationDbContext.cs
 using EnterpriseAPI.Domain.Entities;
+using EnterpriseAPI.Domain.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace EnterpriseAPI.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
@@ -16,51 +18,34 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnModelCreating(modelBuilder); // Identity konfigürasyonu için bu çağrı şart!
 
-        // Global query filter - soft delete'i otomatik filtrele
+        // Global query filter - soft delete
         modelBuilder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
 
         // Product konfigürasyonu
         modelBuilder.Entity<Product>(entity =>
         {
             entity.HasKey(e => e.Id);
-            
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-            
-            entity.Property(e => e.Price)
-                .HasPrecision(18, 2);  // PostgreSQL için de çalışır
-            
-            entity.Property(e => e.Sku)
-                .HasMaxLength(20);
-            
-            entity.HasIndex(e => e.Sku)
-                .IsUnique();
-            
-            // PostgreSQL için özel (opsiyonel)
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+            entity.Property(e => e.Sku).HasMaxLength(20);
+            entity.HasIndex(e => e.Sku).IsUnique();
         });
-    }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        // Audit interceptor - otomatik tarih alanlarını doldur
-        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+        // Identity tablo isimlerini özelleştirme (opsiyonel)
+        modelBuilder.Entity<ApplicationUser>(entity =>
         {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                    break;
-                case EntityState.Modified:
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
-                    break;
-            }
-        }
-
-        return base.SaveChangesAsync(cancellationToken);
+            entity.ToTable("Users");
+        });
+        modelBuilder.Entity<ApplicationRole>(entity =>
+        {
+            entity.ToTable("Roles");
+        });
+        modelBuilder.Entity<IdentityUserRole<Guid>>(entity =>
+        {
+            entity.ToTable("UserRoles");
+        });
+        // ... diğer Identity tabloları
     }
 }

@@ -1,5 +1,6 @@
 using EnterpriseAPI.Application.DTOs;
 using EnterpriseAPI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EnterpriseAPI.Api.Controllers;
@@ -7,6 +8,7 @@ namespace EnterpriseAPI.Api.Controllers;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Produces("application/json")]
+[Authorize] // Tüm aksiyonlar için yetki gerekli
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
@@ -23,6 +25,7 @@ public class ProductsController : ControllerBase
     /// </summary>
     /// <returns>Ürün listesi</returns>
     [HttpGet]
+    [AllowAnonymous] // Herkes görebilir
     [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllProducts()
     {
@@ -53,6 +56,7 @@ public class ProductsController : ControllerBase
     /// <param name="createDto">Ürün bilgileri</param>
     /// <returns>Oluşturulan ürün</returns>
     [HttpPost]
+    [Authorize(Roles = "Admin")] // Sadece Admin
     [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto createDto)
