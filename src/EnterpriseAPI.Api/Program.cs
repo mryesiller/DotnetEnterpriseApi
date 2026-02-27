@@ -136,15 +136,25 @@ builder.Services.AddResponseCaching();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Swagger'ı her ortamda (Production dahil) aktif et
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Development'a özel diğer ayarlar buraya gelebilir
 }
 else
 {
     app.UseHsts(); // HTTP Strict Transport Security
 }
+
+// Ana sayfayı (/), Swagger'a yönlendir
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/swagger/index.html");
+    return Task.CompletedTask;
+});
 
 app.UseHttpsRedirection();
 app.UseCors("AllowSpecificOrigin");
