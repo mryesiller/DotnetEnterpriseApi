@@ -66,8 +66,27 @@ builder.Services.AddSwaggerGen(c =>
 
 
 // Veritabanı
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Railway DATABASE_URL desteği
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    var databaseUri = new Uri(databaseUrl);
+    var userInfo = databaseUri.UserInfo.Split(':');
+    var npgsqlBuilder = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = databaseUri.Host,
+        Port = databaseUri.Port,
+        Username = userInfo[0],
+        Password = userInfo[1],
+        Database = databaseUri.LocalPath.TrimStart('/')
+    };
+    connectionString = npgsqlBuilder.ToString();
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
