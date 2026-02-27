@@ -86,7 +86,7 @@ if (!string.IsNullOrEmpty(databaseUrl))
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, b => b.MigrationsAssembly("EnterpriseAPI.Infrastructure")));
 
 // Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -166,18 +166,25 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
-// Veritabanını migrate et (geliştirme ortamı için)
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
-}
-
-// Admin rolü oluştur
+// Veritabanını migrate et ve seed et
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedData.SeedAsync(services);
+    try
+    {
+        var dbContext = services.GetRequiredService<ApplicationDbContext>();
+        // Veritabanı yoksa oluştur, varsa migrationları uygula
+        dbContext.Database.Migrate();
+
+        // Seed data (Roller ve Admin kullanıcısı)
+        await SeedData.SeedAsync(services);
+        
+        Log.Information("Database migration and seeding completed successfully.");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while migrating or seeding the database.");
+    }
 }
 
 app.Run();
